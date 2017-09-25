@@ -1,0 +1,60 @@
+目标：游戏
+
+	最有难度： 设计(产品设计，运营,UI)
+	代码编写： OOP
+
+	复习：
+		构造函数('类')		实例(对象)		原型
+		Array				arr 			Array.prototype
+
+
+		function 构造函数名(参数){
+			this.属性=参数
+			...
+		}
+		类.prototype=new 父类();
+		类.prototype.constructor=类
+		类.prototype.方法=function(){
+
+		}
+
+		class 类名 extends 父类{
+			constructor(props){
+				super(props)
+				this.属性=值
+				..
+			}
+			方法(){}
+		}
+------------------------------------------------------------------
+捕鱼达人
+1. 资源加载
+	封装loadImage(arr,success,loading){}
+2. 抽象
+	
+	鱼: Fish	
+		属性:	x, y , rotate , type , speed ,cur collR
+		方法:	move	draw 	isIn
+	死鱼: DieFish	
+		属性:	x, y , rotate , type  ,cur 
+		方法:	move	draw 	
+	炮筒:	Cannon
+		属性:	x,y,rotate,type,cur
+		方法:	draw	emit
+	炮弹:	Bullet
+		属性:	x,y,rotate,type,speed
+		方法:	draw	move
+	金币: 规定 1 2 -> 1毛	3 4 5 -> 10块
+		属性：x y type cur
+		方法: move 转,收钱 draw
+	网:
+		属性:x y type scale
+		方法: move draw
+	音效：
+		
+优化：
+	画布外的角色，清除(定时器停，角色实例要剔除)
+
+作业：
+	捕鱼优化:  不用的角色要删除 , 保证统一绘制的定时器是长存，其他都清除
+	渔网，积分牌,

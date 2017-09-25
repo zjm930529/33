@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style>
+			*{
+				margin: 0;
+				padding: 0;
+			}
+			body{
+				text-align: center;
+				
+			}
+			canvas{
+				margin: 0 auto;
+				background:url(img/game_bg_2_hd.jpg) ;
+			}
+			/*input{
+				width: 30px;
+				height: 20px;
+				background: url(img/bj.png) center center no-repeat;
+				font-size: 20px;
+				line-height: 15px;
+				font-weight: bold;
+				text-align: center;
+			}*/
+		</style>
+	</head>
+	<body>
+		<canvas width="800" height="600" id="c1"></canvas>
+		<!--<input type="button"  id="left" value="+" />
+		<input type="button"  id="left" value="-" />-->
+	</body>
+</html>
+<script>
+	"use strict"
+	
+	 function rnd(n,m){
+      return parseInt(Math.random()*(m-n))+n;
+    }
+    function fillzero(n){
+      return n<10?'0'+n:''+n;
+    }
+    function d2a(n){
+      return n*Math.PI/180;
+    }
+    function a2d(n){
+      return n*180/Math.PI;
+    }
+	
+	
+	const nameArry=[//图片的资源
+      'fish1','fish2','fish3','fish4','fish5',
+      'cannon1','cannon2','cannon3','cannon4','cannon5','cannon6','cannon7',
+      'bottom','bullet','coinAni1','coinAni2','web','c1','c2'
+      ,'coinText','number_black'
+    ];
+	
+	
+	
+	//鱼 的不同尺寸
+	var FISH_SIZE=[
+		null,
+		{w: 55, h: 37, collR: 17},
+		{w: 78, h: 64, collR: 24},
+		{w: 72, h: 56, collR: 20},
+		{w: 77, h: 59, collR: 22},
+		{w: 107, h: 122, collR: 29}
+	];
+	class fish{  //构造函数  鱼类
+		constructor(type){
+			this.type=type||1;
+			this.x=0;
+			this.y=0;
+			this.rotate=0;
+			this.cur=0;
+			this.speed=6;
+			this.move();
+			this.collR = FISH_SIZE[this.type].collR;
+		}
+		
+		draw(gd){
+			var w = FISH_SIZE[this.type].w;
+			var h = FISH_SIZE[this.type].h;
+			var coolR = FISH_SIZE[this.type].coolR;
+			gd.save();
+			gd.translate(this.x,this.y)
+			gd.rotate(d2a(this.rotate));
+			if(this.rotate>90&&this.rotate<270){
+				gd.scale(1,-1);
+			}
+			gd.drawImage(oJson['fish'+this.type],
+					0,this.cur*h,w,h,
+					-w/2,-h/2,w,h
+			)
+			gd.restore();
+		};
+		move(){
+			
+			setInterval(function(){//鱼儿运动
+				this.x +=Math.cos(d2a(this.rotate))*(this.speed-this.type);
+				this.y +=Math.sin(d2a(this.rotate))*(this.speed-this.type);
+			}.bind(this),30);
+			 setInterval(function(){//摇尾巴
+				this.cur++;
+				if(this.cur==4){
+					this.cur=0;
+				}
+			}.bind(this),300)
+		};
+		dis(x,y){
+			var a = this.x-x;
+			var b = this.y-y;
+			var c = Math.sqrt(a*a+b*b);
+			if(c<this.collR){
+				return true;
+			}else{
+				return false;
+			}
+		}
+	}
+	
+	
+	//死鱼类
+	//鱼 的不同尺寸
+	var FISH_SIZE=[
+		null,
+		{w: 55, h: 37, collR: 17},
+		{w: 78, h: 64, collR: 24},
+		{w: 72, h: 56, collR: 20},
+		{w: 77, h: 59, collR: 22},
+		{w: 107, h: 122, collR: 29}
+	];
+	class Diefish{  //构造函数  鱼类
+		constructor(type){
+			this.type=type||1;
+			this.x=0;
+			this.y=0;
+			this.rotate=0;
+			this.cur=0;		
+			this.move();
+			
+		}
+		
+		draw(gd){
+			var w = FISH_SIZE[this.type].w;
+			var h = FISH_SIZE[this.type].h;
+			gd.save();
+			gd.translate(this.x,this.y)
+			gd.rotate(d2a(this.rotate));
+			if(this.rotate>90&&this.rotate<270){
+				gd.scale(1,-1);
+			}
+			gd.drawImage(oJson['fish'+this.type],
+					0,(this.cur+4)*h,w,h,
+					-w/2,-h/2,w,h
+			)
+			gd.restore();
+		};
+		move(){
+			 setInterval(function(){//挣扎
+				this.cur++;
+				if(this.cur==4){
+					this.cur=0;
+				}
+			}.bind(this),300)
+		};
+	}
+	
+
+	
+	//炮类
+	var CANNON_SIZE=[
+		null,
+		{w: 74, h: 74},
+		{w: 74, h: 76},
+		{w: 74, h: 76},
+		{w: 74, h: 83},
+		{w: 74, h: 85},
+		{w: 74, h: 90},
+		{w: 74, h: 94}
+	];
+	class Cannon{
+		constructor(type){
+			
+			this.type = type||1;
+			this.x = 431;
+			this.y = 570;
+			this.rotate=0;
+			this.cur=0;
+		}
+		draw(gd){
+			var w = CANNON_SIZE[this.type].w;
+			var h = CANNON_SIZE[this.type].h;
+			gd.save();
+			gd.translate(this.x,this.y)
+			gd.rotate(d2a(this.rotate));
+			gd.drawImage(oJson['cannon'+this.type],
+					0,this.cur*h,w,h,
+					-w/2,-h/2,w,h
+			)
+			gd.restore();
+		};
+		emit(){
+			var _this= this;
+			clearInterval(timer);
+			var timer = setInterval(function(){
+				_this.cur++;
+				if(_this.cur==5){
+					_this.cur=0;
+					clearInterval(timer);
+				}
+			},20)
+		}
+	}
+	
+	
+	//炮弹具体尺寸
+	var BULLET_SIZE=[
+		null,
+		{x: 86, y: 0, w: 24, h: 26},
+		{x: 62, y: 0, w: 25, h: 29},
+		{x: 30, y: 0, w: 31, h: 35},
+		{x: 32, y: 35, w: 27, h: 31},
+		{x: 30, y: 82, w: 29, h: 33},
+		{x: 0, y: 82, w: 30, h: 34},
+		{x: 0, y: 0, w: 30, h: 44}
+	];
+	//炮弹类
+	
+	class Bullet{
+		constructor(type){
+			this.type=type||1;
+			this.x=0;
+			this.y=0;
+			this.rotate=0;
+			this.speed =10;
+			this.timer = null;
+			this.move();
+			this.play();
+		};
+		draw(gd){
+			var w = BULLET_SIZE[this.type].w;
+			var h = BULLET_SIZE[this.type].h;
+			var x = BULLET_SIZE[this.type].x;
+			var y = BULLET_SIZE[this.type].y;
+			gd.save();
+			gd.translate(this.x,this.y)
+			gd.rotate(d2a(this.rotate));
+			gd.drawImage(oJson['bullet'],
+					x,y,w,h,
+					-w/2,-h/2,w,h
+			)
+			gd.restore();
+	};
+	
+		move(){
+			clearInterval(this.timer);
+			this.timer = setInterval(function(){
+				this.x +=Math.sin(d2a(this.rotate))*this.speed;
+				this.y -=Math.cos(d2a(this.rotate))*this.speed;
+			}.bind(this),30);
+		};
+		play(){
+			var ard = new Audio();
+			//ard.src='./snd/bullet.mp3';
+			ard.play();
+		}
+	}
+	
+	
+	//金币的类
+	class Coin{
+		constructor(type){
+			this.type = type||1;
+			this.x = 0;
+			this.y = 0;
+			this.cur = 0;
+			this.timer = null;
+			this.scale=1;
+			this.move();
+			this.play();
+		}
+		draw(gd){
+			gd.save();	
+			gd.translate(this.x+60/2,this.y+60/2);
+			gd.scale(this.scale,this.scale);
+			switch(this.type){
+				case 1:
+				case 2:					
+					gd.drawImage(oJson['coinAni1'],
+								0,60*this.cur,60,60,
+								-60/2,-60/2,60,60
+					)
+					break;
+				case 3:
+				case 4:
+				case 5:
+					gd.drawImage(oJson['coinAni2'],
+								0,60*this.cur,60,60,
+								-60/2,-60/2,60,60
+					)
+					break;
+			}
+			gd.restore();
+		};
+		move(){
+			clearInterval(this.timer);
+			this.timer=setInterval(function(){
+				this.cur++;
+				if(this.cur==10){
+					this.cur=0;
+				}
+				this.x +=(0-this.x)/15;
+				this.y +=(600-this.y)/15;
+				this.scale-=0.05;				
+				if(this.scale<0){
+					clearInterval(this.timer);
+				}
+			}.bind(this),50)
+		};
+		play(){
+			var ard = new Audio();			
+			ard.src='./snd/coin.wav';
+			ard.play();
+		}
+	}
+	//网的尺寸
+	var WB_SIZE=[
+		null,
+		{x: 332, y: 372, w: 88, h: 88},
+		{x: 12, y: 411, w: 124, h: 124},
+		{x: 175, y: 362, w: 130, h: 130},
+		{x: 225, y: 195, w: 165, h: 165},
+		{x: 0, y: 246, w: 170, h: 170},
+		{x: 243, y: 0, w: 185, h: 185},
+		{x:23, y: 21, w: 200, h: 200}
+	];
+	//网类
+	
+	class Web{
+		constructor(type){
+			this.type = type||1;
+			this.dx=0;
+			this.dy=0;
+			this.sx=WB_SIZE[this.type].x;
+			this.sy=WB_SIZE[this.type].y;
+			this.w=WB_SIZE[this.type].w;
+			this.h=WB_SIZE[this.type].h;
+			this.x=0;
+			this.y=0;
+			this.timer = null;
+			this.scale=0;
+			this.move();
+			
+		}
+		draw(gd){
+			gd.save();
+			gd.translate(this.x,this.y);
+			gd.scale(this.scal,this.scale);
+			gd.drawImage(oJson['web'],
+						this.sx,this.sy,this.w,this.h,
+         				 -this.w/2,-this.h/2,this.w,this.h
+			)
+			
+			gd.restore();
+		};
+		move(){
+			this.timer=setInterval(function(){
+				this.scale+=0.15;
+				if(this.scale>1.5){
+					clearInterval(this.timer);
+				}
+			}.bind(this),30)
+		};
+	}
+	
+	
+	//num 类
+	var coinTexts = {
+					'0' : {sx: 0, w: 36, h: 49},//0
+					'1' : {sx: 36, w: 36, h: 49},//1
+					'2' : {sx: 72, w: 36, h: 49},//2
+					'3' : {sx: 108, w: 36, h: 49},//3
+					'4' : {sx: 144, w: 36, h: 49},//4
+					'5' : {sx: 180, w: 36, h: 49},//5
+					'6' : {sx: 216, w: 36, h: 49},//6
+					'7' : {sx: 252, w: 36, h: 49},//7
+					'8' : {sx: 288, w: 36, h: 49},//8
+					'9' : {sx: 324, w: 36, h: 49},//9
+					'x' : {sx: 360, w: 36, h: 49}//x
+				};
+	class Number{
+		constructor(num){
+			this.num=num.split('');
+			
+			this.sy=0;		
+			this.x=0;
+			this.y=0;
+		}
+		draw(gd){
+			
+			for(var i=0;i<this.num.length;i++){
+				
+				gd.save();
+				gd.drawImage(oJson['coinText'],
+								coinTexts[this.num[i]].sx,this.sy,36,49,
+								this.x+36*i,this.y,36,49
+				)
+				gd.restore();
+				
+			}
+		};
+		
+	}
+	
+	
+	//积分类
+	var countTexts = {
+				'0' : {sy: 216, w: 20, h: 24},//0
+				'1' : {sy: 192, w: 20, h: 24},//1
+				'2' : {sy: 168, w: 20, h: 24},//2
+				'3' : {sy: 144, w: 20, h: 24},//3
+				'4' : {sy: 120, w: 20, h: 24},//4
+				'5' : {sy: 96, w: 20, h: 24},//5
+				'6' : {sy: 72, w: 20, h: 24},//6
+				'7' : {sy: 48, w: 20, h: 24},//7
+				'8' : {sy: 24, w: 20, h: 24},//8
+				'9' : {sy: 0, w: 20, h: 24}//9
+					};
+	class CoinText{
+		constructor(num){
+			this.num = num.split('');
+			this.x=18;
+			this.y=568;
+			
+		}
+		draw(gd){
+			
+			for(var i=0;i<this.num.length;i++){
+				gd.save();
+				gd.drawImage(oJson['number_black'],
+								0,countTexts[this.num[i]].sy,20,24,
+								this.x+24*i,this.y,20,24
+				)
+				gd.restore();
+			}
+		};
+	}
+	
+	//存资源
+	var oJson={};
+	function loadImg(arr,init,loading){
+		var cont =0;
+		for(var i=0;i<arr.length;i++){
+			(function(index){
+				var oImg = new Image();
+				oImg.onload=function(){
+					cont++;
+					//loading && loading(cont,arr.length);
+					oJson[arr[index]]=this;
+					if(cont==arr.length){
+						init&&init();					
+					};
+				}
+				oImg.src = 'img/'+arr[index]+'.png';
+			})(i)
+		}
+	}
+	
+	
+	window.onload=function(){
+			var oC=document.querySelector("#c1");
+			var gd=oC.getContext('2d');
+			var money =1000;
+			loadImg(nameArry,init);
+			
+				function init(){
+				
+				var c = new Cannon(1);//创造炮筒
+				
+				var arrBullet = [];//收集炮弹
+				var arrFish = [];//收集鱼儿
+				
+				var arrCoin = [];//收集金币
+				
+				var arrDieFish=[];//收集死鱼儿
+				
+				var arrWeb=[];//收集网
+				
+				var arrNum = [];//收集分数
+				
+				var arrJf =[]; //收集积分
+				
+				//积分牌
+				var coint = new CoinText('001000');
+				//统一绘制 
+				setInterval(function(){
+					gd.clearRect(0,0,oC.width,oC.height);				
+					//出鱼儿
+					if(Math.random()<0.02){
+						var f= new fish(rnd(1,6));
+						if(Math.random()<0.5){
+							f.x=-60;
+							f.rotate = rnd(-45,45);
+						}else{
+							f.x=oC.width+60;
+							f.rotate = rnd(135,225);
+						}
+						f.y=rnd(100,oC.height-100);
+						arrFish.push(f);
+					}
+					
+					
+					
+					
+					//统一绘制鱼儿
+					for(var i=0;i<arrFish.length;i++){
+						arrFish[i].draw(gd);
+					}
+					
+					//统一绘制网
+					for(var i =0;i<arrWeb.length;i++){
+						arrWeb[i].draw(gd);
+					}
+					
+					//统一绘制死鱼儿
+					for(var i =0;i<arrDieFish.length;i++){
+						arrDieFish[i].draw(gd);
+					}
+					
+					//统一绘制金币
+					for(var i=0;i<arrCoin.length;i++){
+						arrCoin[i].draw(gd);
+					}
+					
+					//、、统一绘制分数
+					for(var i=0;i<arrNum.length;i++){
+						arrNum[i].draw(gd);
+					}
+					
+					
+					//统一绘制积分
+//					for(var i=0;i<arrJf.length;i++){
+//						arrJf[i].draw(gd);
+//					}
+					
+					
+					
+					
+					//炮台
+					gd.drawImage(oJson['bottom'],
+									0,0,765,70,
+									0,523,765,70
+					);
+					
+					gd.drawImage(oJson['c1'],
+								0,0,60,60,
+								345,550,40,40
+					)
+					
+					gd.drawImage(oJson['c2'],
+								0,0,60,60,
+								475,550,40,40
+					)
+					//统一绘制  炮弹
+					for(var i=0;i<arrBullet.length;i++){
+						arrBullet[i].draw(gd);
+					}
+					
+					//积分的变化
+					coint.draw(gd)
+					
+					//手动检测碰撞
+					
+					for(var i=0;i<arrFish.length;i++){
+						var n=0;
+						for(var j=0;j<arrBullet.length;j++){
+							var dl=arrFish[i].dis(arrBullet[j].x,arrBullet[j].y);
+							if(dl){
+								
+								var FishX = arrFish[i].x;
+								var FishY = arrFish[i].y;
+								var FishType = arrFish[i].type;
+								var Fishrotate = arrFish[i].rotate;
+								//console.log(arrFishType);
+								clearInterval(arrFish[i].timer);
+								arrFish.splice(i,1);
+								clearInterval(arrBullet[j].timer);
+								arrBullet.splice(j--,1);
+								
+								var coin = new Coin(FishType);//出金币
+								coin.x=FishX;
+								coin.y=FishY;
+								arrCoin.push(coin);
+								
+								//出死鱼
+								var diefish = new Diefish(FishType);
+								diefish.x=FishX;
+								diefish.y=FishY;								
+								arrDieFish.push(diefish);
+								setTimeout(function(){
+									arrDieFish.shift();
+								},600);
+								
+								
+								//出网
+								var web = new Web(FishType);
+								web.x=FishX;
+								web.y=FishY;
+								arrWeb.push(web);
+								setTimeout(function(){
+									arrWeb.shift();
+								},600);
+								
+								
+								
+								//出分数
+								var num = 'x'+FishType*10;
+								var number = new Number(num);
+								//console.log(number.num)
+								number.x = FishX;
+								number.y = FishY;
+								arrNum.push(number);
+								setTimeout(function(){
+									arrNum.shift();
+								},600);
+								
+								
+								
+								
+								
+								
+								//积分牌的分数加
+								var str  = '000000';
+								money = money+FishType*10;
+								if(money>1000){
+									var moneystr = str+(money);
+									coint.num = moneystr.substr(4).split('');
+									
+								}else{
+									var moneystr = str+(money);
+									coint.num = moneystr.substr(3).split('');
+								}
+							}
+								
+						}
+					}
+					
+					
+					//炮筒
+					c.draw(gd);
+					
+					//炮弹的优化
+					for(var i=0;i<arrBullet.length;i++){
+						if(
+						  arrBullet[i].x<-100 ||
+			              arrBullet[i].x>oC.width+100 ||
+			              arrBullet[i].y<-100 ||
+			              arrBullet[i].y>oC.height+100
+						){
+							clearInterval(arrBullet[i].timer);
+							arrBullet.splice(i,1);//删除消失在可视范围内的子弹
+						}
+					}
+					
+					//鱼儿的优化
+					
+					for(var i=0;i<arrFish.length;i++){
+						if(
+						  arrFish[i].x<-60 ||
+			              arrFish[i].x>oC.width+60 ||
+			              arrFish[i].y<-60 ||
+			              arrFish[i].y>oC.height+60
+						){
+							clearInterval(arrFish[i].timer);
+							arrFish.splice(i,1);//删除消失在可视范围内的子弹
+						}
+					}
+					
+					
+				},16);
+				
+				
+				
+				
+				//点击事件的发生 产生交互
+				oC.onclick=function(ev){
+					var x = ev.clientX-oC.offsetLeft-c.x;
+					var y = c.y-(ev.clientY-oC.offsetTop);
+					
+					var sizeX = ev.clientX-oC.offsetLeft;
+					var sizeY = ev.clientY-oC.offsetTop;
+
+					if(sizeX>345&&sizeX<385 && sizeY<590&& sizeY>540 ){
+						c.type++;
+						if(c.type==8){
+							c.type=7;
+						}
+						
+					}else if(sizeX>475 && sizeX<515  && sizeY<590 &&sizeY>540 ){
+						c.type--;
+						if(c.type==0){
+							c.type=1;
+						}
+					}
+					var d = a2d(Math.atan2(x,y));
+					c.rotate = d;//炮筒的角度
+					c.emit();//炮筒发射动作
+					
+					var b = new Bullet(c.type);
+					b.rotate = c.rotate;
+					b.x=c.x;
+					b.y=c.y;
+					arrBullet.push(b);
+					
+					
+					//点击发射炮弹 积分的变化
+					var str  = '000000';
+					money = money-c.type*10
+					if(money>1000){
+						var moneystr = str+(money);
+						coint.num = moneystr.substr(4).split('');
+						
+					}else{
+						var moneystr = str+(money);
+						coint.num = moneystr.substr(3).split('');
+					}
+				};
+				
+				
+				
+			}
+		
+		
+	}
+</script>

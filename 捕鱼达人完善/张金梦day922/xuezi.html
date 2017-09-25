@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			*{ margin: 0 auto};
+			#main{
+				margin: 0 auto;
+				margin-top: 100px;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="main" style="width: 800px; height: 600px;"></div>
+	</body>
+</html>
+<script src="echarts.js"></script>
+ <script type="text/javascript">
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('main'));
+
+        // 指定图表的配置项和数据
+        var option ={
+			    backgroundColor: '#2c343c',
+			
+			    title: {
+			        text: '不想学习的心情',
+			        left: 'center',
+			        top: 20,
+			        textStyle: {
+			            color: '#ccc'
+			        }
+			    },
+			
+			    tooltip : {
+			        trigger: 'item',
+			        formatter: "{a} <br/>{b} : {c} ({d}%)"
+			    },
+			
+			    visualMap: {
+			        show: false,
+			        min: 80,
+			        max: 600,
+			        inRange: {
+			            colorLightness: [0, 1]
+			        }
+			    },
+			    series : [
+			        {
+			            name:'访问来源',
+			            type:'pie',
+			            radius : '55%',
+			            center: ['50%', '50%'],
+			            data:[
+			                {value:400, name:'张大梦'},
+			                {value:335, name:'小梦雪'},
+			                {value:274, name:'美美'},
+			                {value:235, name:'小丽君'},
+			                {value:274, name:'婷婷'}
+			            ].sort(function (a, b) { return a.value - b.value; }),
+			            roseType: 'radius',
+			            label: {
+			                normal: {
+			                    textStyle: {
+			                        color: 'rgba(255, 255, 255, 0.3)'
+			                    }
+			                }
+			            },
+			            labelLine: {
+			                normal: {
+			                    lineStyle: {
+			                        color: 'rgba(255, 255, 255, 0.3)'
+			                    },
+			                    smooth: 0.2,
+			                    length: 10,
+			                    length2: 20
+			                }
+			            },
+			            itemStyle: {
+			                normal: {
+			                    color: '#c23531',
+			                    shadowBlur: 200,
+			                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+			                }
+			            },
+			
+			            animationType: 'scale',
+			            animationEasing: 'elasticOut',
+			            animationDelay: function (idx) {
+			                return Math.random() * 200;
+			            }
+			        }
+			    ]
+			};
+
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+    </script>
